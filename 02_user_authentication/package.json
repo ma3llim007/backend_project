@@ -1,0 +1,29 @@
+{
+    "name": "02_user_authentication",
+    "version": "1.0.0",
+    "main": "src/index.js",
+    "author": "mohd sameer <mohdsameer68257@gmail.com>",
+    "license": "MIT",
+    "scripts": {
+        "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+        "start": "node -r dotenv/config --experimental-json-modules src/index.js"
+    },
+    "type": "module",
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "body-parser": "^1.20.3",
+        "cookie-parser": "^1.4.7",
+        "dotenv": "^16.4.7",
+        "ejs": "^3.1.10",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.12.1",
+        "morgan": "^1.10.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.22.0",
+        "eslint": "^9.22.0",
+        "nodemon": "^3.1.9",
+        "prettier": "^3.5.3"
+    }
+}

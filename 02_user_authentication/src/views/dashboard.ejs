@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="flex items-center justify-center h-screen bg-slate-950">
+    <div class="w-full max-w-lg p-6 bg-white rounded-lg shadow-md text-center">
+        <h2 class="text-3xl font-bold text-blue-600">Welcome to Your Dashboard</h2>
+        <p class="mt-2 text-gray-600">This page is protected and only accessible to logged-in users.</p>
+
+        <div class="mt-6">
+            <h3 class="text-xl font-semibold">User Info</h3>
+            <p id="userName" class="mt-2 text-gray-700"></p>
+            <p id="userEmail" class="text-gray-700"></p>
+            <p id="userUser" class="text-gray-700"></p>
+        </div>
+
+        <button id="logoutBtn"
+            class="mt-6 w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+            Logout
+        </button>
+    </div>
+
+    <script>
+        async function fetchUserData() {
+            try {
+                const response = await fetch("/api/v1/user/user-profile", {
+                    method: "GET",
+                    credentials: "include", // IMPORTANT: Include cookies in request
+                });
+
+                const data = await response.json();
+                console.log(data);
+                
+
+                if (response.ok) {
+                    document.getElementById("userName").innerText = `Name: ${data.data.firstName} ${data.data.lastName}`;
+                    document.getElementById("userEmail").innerText = `Email: ${data.data.email}`;
+                    document.getElementById("userUser").innerText = `Username: ${data.data.username}`;
+                } else {
+                    alert("Session expired. Please log in again.");
+                    window.location.href = "/login";
+                }
+            } catch (error) {
+                alert("⚠️ Error fetching user data: " + error.message);
+                window.location.href = "/login";
+            }
+        }
+
+        fetchUserData();
+
+        // Logout function
+        document.getElementById("logoutBtn").addEventListener("click", async () => {
+            await fetch("/api/v1/user/logout", { method: "POST", credentials: "include" });
+            alert("You have been logged out.");
+            window.location.href = "/login";
+        });
+    </script>
+</body>
+
+</html>
