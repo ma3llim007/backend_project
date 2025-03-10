@@ -193,4 +193,30 @@ const generateCoverLetter = asyncHandler(async (req, res) => {
         return res.status(500).json(new ApiError(500, error.message));
     }
 });
-export { generateResume, analyzeResume, generateCoverLetter };
+
+// Finding Missing keyword of Skill Suggestions
+const findingMissingKeyword = asyncHandler(async (req, res) => {
+    try {
+        const { skills, jobDescription } = req.body;
+
+        if (!skills || !jobDescription) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
+        const aiMisingKeyword = await generateAIContent(`
+            Analyze the following job description and candidate's existing skills. Identify only the missing keywords that are present in the job description but not in the candidate's resume.
+            Candidate's Resume Information:
+            - Current Skills: ${skills}
+            Job Description:${jobDescription}
+            Guidelines:
+            - Extract technical skills, tools, frameworks, methodologies, or industry-relevant terms missing from the candidate's skill set.
+            - Provide only the missing keywords without any explanation or extra formatting.
+            Expected Output Format:
+            Return a comma-separated list of missing keywords relevant to the job description.
+        `);
+        return res.status(200).json(new ApiResponse(200, aiMisingKeyword, "Missing Keywords Fetched Successfully ✨✨"));
+    } catch (error) {
+        return res.status(500).json(new ApiError(500, error.message));
+    }
+});
+
+export { generateResume, analyzeResume, generateCoverLetter, findingMissingKeyword };
