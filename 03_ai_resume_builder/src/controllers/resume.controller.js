@@ -219,4 +219,28 @@ const findingMissingKeyword = asyncHandler(async (req, res) => {
     }
 });
 
-export { generateResume, analyzeResume, generateCoverLetter, findingMissingKeyword };
+// Grammar & Spell Checking
+const grammarSpellCheck = asyncHandler(async (req, res) => {
+    try {
+        const { content } = req.body;
+        if (!content) {
+            return res.status(400).json(new ApiError(400, "Missing required field: content"));
+        }
+        const aiGrammarCheck = await generateAIContent(`
+            Check the grammar and spelling of the following text:
+            ${content}
+            Guidelines:
+            - Correct any grammatical errors, punctuation mistakes, and spelling errors.
+            - Ensure the text is clear, concise, and professional.
+            - Return the corrected text without any additional explanations or formatting.
+            Expected Output Format:
+            Return the corrected text with all the necessary corrections.
+        `);
+
+        return res.status(200).json(new ApiResponse(200, aiGrammarCheck, "Grammar & Spell Check Fetched Successfully ✨✨"));
+    } catch (error) {
+        return res.status(500).json(new ApiError(500, error.message));
+    }
+});
+
+export { generateResume, analyzeResume, generateCoverLetter, findingMissingKeyword, grammarSpellCheck };
