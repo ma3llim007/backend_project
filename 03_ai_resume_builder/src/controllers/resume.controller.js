@@ -38,60 +38,60 @@ const generateResume = asyncHandler(async (req, res) => {
 
         // Generate AI-enhanced content
         const aiSummary = await generateAIContent(`
-            Generate a **single-paragraph** professional resume summary based on these details:
+            Generate a single-paragraph professional resume summary based on these details:
             - Name: ${userData.name}
             - Job Title: ${userData.title}
             - Experience: ${JSON.stringify(userData.experience)}
             - Skills: ${userData.skills}
             - Education: ${JSON.stringify(userData.education)}
-            ### **Requirements:**
-            - **Concise and impactful** (3-5 sentences).
-            - **Highlight key skills and strengths**.
-            - **Show enthusiasm and career goals**.
-            - **No extra formatting or explanations**—just the summary.
-            Return **only the summary text**.
+            Requirements:
+            - Concise and impactful (3-5 sentences).
+            - Highlight key skills and strengths.
+            - Show enthusiasm and career goals.
+            - No extra formatting or explanations—just the summary.
+            Return only the summary text.
         `);
         // Generate AI-enhanced experience, skills, and project descriptions
         const aiExperience = await generateAIContent(`
-            Rewrite the following **experience section** in a **professional resume format**.
-            ### **Experience Details:**  
+            Rewrite the following experience section in a professional resume format.
+            Experience Details:
             ${JSON.stringify(userData.experience)}
-            ### **Formatting Requirements:**  
-            - **Use bullet points** for responsibilities and achievements.
-            - **Start each point with a strong action verb** (e.g., Developed, Managed, Implemented).
-            - **Include quantifiable results** if applicable (e.g., "Increased efficiency by 20%").
-            - **Keep each bullet point concise and impactful** (max 1-2 sentences).
-            ### **Expected Output Format:**  
-            Return the response **as plain text** in the following format:
+            Formatting Requirements:  
+            - Use bullet points for responsibilities and achievements.
+            - Start each point with a strong action verb (e.g., Developed, Managed, Implemented).
+            - Include quantifiable results if applicable (e.g., "Increased efficiency by 20%").
+            - Keep each bullet point concise and impactful (max 1-2 sentences).
+            Expected Output Format:  
+            Return the response as plain text in the following format:
             [Job Title] | [Company] | [Dates]  
             - Key responsibility or achievement 1  
             - Key responsibility or achievement 2  
             - Key responsibility or achievement 3  
-            **Do not include any extra text, explanations, or formatting symbols (e.g., triple backticks).** 
+            Do not include any extra text, explanations, or formatting symbols (e.g., triple backticks).
         `);
         // Generate AI-enhanced Skills
         const aiSkills = await generateAIContent(`
-            Enhance and structure the **skills section** for a professional resume.
-            ### **User Input Skills:**  
+            Enhance and structure the skills section for a professional resume.
+            User Input Skills:  
             ${userData.skills}
-            ### **Formatting Requirements:**  
-            - Categorize skills into **relevant sections** (e.g., Front-End, Back-End, Databases, DevOps).  
-            - Use **professional terminology** (e.g., "MongoDB - NoSQL Database" instead of "mongodb").  
-            - Ensure **clear, concise, and readable** bullet points.  
+            Formatting Requirements:  
+            - Categorize skills into relevant sections (e.g., Front-End, Back-End, Databases, DevOps).  
+            - Use professional terminology (e.g., "MongoDB - NoSQL Database" instead of "mongodb").  
+            - Ensure clear, concise, and readable bullet points.  
             - No extra formatting or explanations—just return the skills in this format:
-            ### **Expected Output Format:**  
-            **Front-End Development:**
+            Expected Output Format:  
+            Front-End Development:
             - React.js (Hooks, Context API, Redux)
-            **Back-End Development:**
+            Back-End Development:
             - Node.js, Express.js (RESTful APIs, Middleware)
-            **Databases:**
+            Databases:
             - MongoDB (Mongoose, Aggregation Pipeline)
-            **DevOps & Deployment:**
+            DevOps & Deployment:
             - Docker, CI/CD (GitHub Actions)
-            **Additional Tools & Technologies:**
+            Additional Tools & Technologies:
             - Git, Postman, WebSockets (Socket.io)
-            Return **only the structured skills section**.
-            **Do not include any extra text, explanations, or formatting symbols (e.g., triple backticks).** 
+            Return only the structured skills section.
+            Do not include any extra text, explanations, or formatting symbols (e.g., triple backticks). 
         `);
 
         userData.summary = aiSummary;
@@ -108,22 +108,7 @@ const generateResume = asyncHandler(async (req, res) => {
 const analyzeResume = (req, res) => {
     const tokenizer = new natural.WordTokenizer();
     const stemmer = natural.PorterStemmer;
-    const JOB_KEYWORDS = [
-        "JavaScript",
-        "React.js",
-        "Node.js",
-        "MongoDB",
-        "Express.js",
-        "REST API",
-        "Redux",
-        "Mern",
-        "Hooks",
-        "Context API",
-        "Middleware",
-        "MongoDB",
-        "Mongoose",
-        "Aggregation Pipeline",
-    ];
+    const JOB_KEYWORDS = ["JavaScript", "React.js", "Node.js", "MongoDB", "Express.js", "REST API", "Redux", "Hooks"];
 
     try {
         const { experience, skills, summary } = req.body;
@@ -170,30 +155,40 @@ const analyzeResume = (req, res) => {
 // Generate Cover Letter
 const generateCoverLetter = asyncHandler(async (req, res) => {
     try {
-        const { name, title, experience, skills, summary, jobDescription, companyName, hiringManager } = req.body;
+        const { name, title, experience, skills, summary, jobDescription, companyName, hiringManager = "None" } = req.body;
         if (!name || !title || !experience || !skills || !summary || !jobDescription || !companyName) {
             return res.status(400).json({ success: false, message: "Missing required fields" });
         }
+        const aiCoverLetter = await generateAIContent(`
+            Generate a professional and ATS-optimized cover letter based on the following details:
+            Candidate Information:
+                - Name: ${name}
+                - Job Title: ${title}
+                - Experience: ${experience}
+                - Skills: ${skills}
+                - Summary: ${summary}
+            Job Description: ${jobDescription}
+            Company Information:
+                - Company Name: ${companyName}
+                - Hiring Manager (if available): ${hiringManager}
+            Cover Letter Guidelines:
+                - Personalized: Address the hiring manager if available; otherwise, use "Hiring Manager."
+                - Concise & Professional: Keep it within 250-350 words.
+                - Highlight Key Skills: Showcase the most relevant skills from the candidate's profile.
+                - Showcase Achievements: Emphasize how the candidate’s experience aligns with the job role.
+                - Express Enthusiasm: Communicate passion for the role and company.
+                - Call to Action: Encourage further discussion by requesting an interview.
+            Expected Cover Letter Structure:
+                1. Introduction - Express enthusiasm for the role and mention the company name.
+                2. Key Skills & Experience - Highlight relevant experience and achievements.
+                3. Alignment with Job Role - Show how skills fit the job requirements.
+                4. Closing Statement - Express eagerness to contribute and request an interview.
+                5. Signature - End with a professional sign-off.
+            Output Format:
+            Format: Return only the structured cover letter with proper paragraphs. No extra text or explanations.
+        `);
 
-        // Format skills as a readable string
-        const skillsFormatted = Object.values(skills).flat().join(", ");
-        // AI-Generated Cover Letter Template
-        const coverLetter = `
-            Dear ${hiringManager || "Hiring Manager"},
-            I am excited to apply for the **${title}** position at **${companyName}**. As a passionate and skilled developer with expertise in **${skillsFormatted}**, I am eager to bring my experience in **full-stack development** to your team.
-            During my role as **${experience.split("\n")[0]}**, I successfully:
-            - ${experience.split("\n")[1].replace("- ", "")}
-            - ${experience.split("\n")[2].replace("- ", "")}
-            - ${experience.split("\n")[3].replace("- ", "")}
-            With a strong background in **${summary}**, I am confident that my ability to **design scalable applications, optimize performance, and collaborate in dynamic teams** aligns perfectly with this role.
-            I would welcome the opportunity to discuss how my skills and experiences can contribute to **${companyName}**. Please feel free to contact me at your convenience.
-            Thank you for your time and consideration.
-            Best regards,  
-            **${name}**  
-            Format: Only Text Format
-        `;
-
-        return res.status(200).json(new ApiResponse(200, coverLetter, "Generate Cover Letter Successfully With Gemini ✨✨"));
+        return res.status(200).json(new ApiResponse(200, aiCoverLetter, "Generate Cover Letter Successfully With Gemini ✨✨"));
     } catch (error) {
         return res.status(500).json(new ApiError(500, error.message));
     }
