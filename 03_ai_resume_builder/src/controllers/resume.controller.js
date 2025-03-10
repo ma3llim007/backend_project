@@ -161,15 +161,41 @@ const analyzeResume = (req, res) => {
         // Summary Section Check (20% weight)
         if (summary.length > 50) atsScore += 20;
         else feedback.push("Summary is too short. Expand on your skills and experience.");
-
-        return res.json({
-            success: true,
-            atsScore: atsScore.toFixed(2),
-            feedback,
-        });
+        return res.status(200).json(new ApiResponse(200, { atsScore: atsScore.toFixed(2), feedback }, "Your Resume ATS Fetched Successfully ✨✨"));
     } catch (error) {
         return res.status(500).json(new ApiError(500, error.message));
     }
 };
 
-export { generateResume, analyzeResume };
+// Generate Cover Letter
+const generateCoverLetter = asyncHandler(async (req, res) => {
+    try {
+        const { name, title, experience, skills, summary, jobDescription, companyName, hiringManager } = req.body;
+        if (!name || !title || !experience || !skills || !summary || !jobDescription || !companyName) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
+
+        // Format skills as a readable string
+        const skillsFormatted = Object.values(skills).flat().join(", ");
+        // AI-Generated Cover Letter Template
+        const coverLetter = `
+            Dear ${hiringManager || "Hiring Manager"},
+            I am excited to apply for the **${title}** position at **${companyName}**. As a passionate and skilled developer with expertise in **${skillsFormatted}**, I am eager to bring my experience in **full-stack development** to your team.
+            During my role as **${experience.split("\n")[0]}**, I successfully:
+            - ${experience.split("\n")[1].replace("- ", "")}
+            - ${experience.split("\n")[2].replace("- ", "")}
+            - ${experience.split("\n")[3].replace("- ", "")}
+            With a strong background in **${summary}**, I am confident that my ability to **design scalable applications, optimize performance, and collaborate in dynamic teams** aligns perfectly with this role.
+            I would welcome the opportunity to discuss how my skills and experiences can contribute to **${companyName}**. Please feel free to contact me at your convenience.
+            Thank you for your time and consideration.
+            Best regards,  
+            **${name}**  
+            Format: Only Text Format
+        `;
+
+        return res.status(200).json(new ApiResponse(200, coverLetter, "Generate Cover Letter Successfully With Gemini ✨✨"));
+    } catch (error) {
+        return res.status(500).json(new ApiError(500, error.message));
+    }
+});
+export { generateResume, analyzeResume, generateCoverLetter };
