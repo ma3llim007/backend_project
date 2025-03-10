@@ -1,0 +1,29 @@
+{
+    "name": "03_ai_resume_builder",
+    "version": "1.0.0",
+    "main": "src/index.js",
+    "author": "mohd sameer <mohdsameer68257@gmail.com>",
+    "license": "MIT",
+    "type": "module",
+    "scripts": {
+        "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+        "start": "node -r dotenv/config --experimental-json-modules src/index.js"
+    },
+    "dependencies": {
+        "@google/generative-ai": "^0.24.0",
+        "body-parser": "^1.20.3",
+        "compression": "^1.8.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "fs": "^0.0.1-security",
+        "pdfkit": "^0.16.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.22.0",
+        "eslint": "^9.22.0",
+        "globals": "^16.0.0",
+        "nodemon": "^3.1.9",
+        "prettier": "^3.5.3"
+    }
+}
