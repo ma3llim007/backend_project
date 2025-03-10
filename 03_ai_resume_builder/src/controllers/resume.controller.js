@@ -2,6 +2,7 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { generateAIContent } from "../services/aiService.js";
+import natural from "natural";
 
 // Function to validate user input
 function validateUserData(userData) {
@@ -24,6 +25,7 @@ function validateUserData(userData) {
     return null;
 }
 
+// Generate Resume
 const generateResume = asyncHandler(async (req, res) => {
     try {
         const userData = req.body;
@@ -102,4 +104,72 @@ const generateResume = asyncHandler(async (req, res) => {
     }
 });
 
-export { generateResume };
+// Analyze The Resume to calculate ATS Score
+const analyzeResume = (req, res) => {
+    const tokenizer = new natural.WordTokenizer();
+    const stemmer = natural.PorterStemmer;
+    const JOB_KEYWORDS = [
+        "JavaScript",
+        "React.js",
+        "Node.js",
+        "MongoDB",
+        "Express.js",
+        "REST API",
+        "Redux",
+        "Mern",
+        "Hooks",
+        "Context API",
+        "Middleware",
+        "MongoDB",
+        "Mongoose",
+        "Aggregation Pipeline",
+    ];
+
+    try {
+        const { experience, skills, summary } = req.body;
+
+        if (!experience || !skills || !summary) {
+            return res.status(400).json({ success: false, message: "Missing required fields" });
+        }
+
+        let atsScore = 0;
+        const feedback = [];
+
+        // Convert text to lowercase and tokenize
+        const experienceTokens = tokenizer.tokenize(experience.toLowerCase());
+        const summaryTokens = tokenizer.tokenize(summary.toLowerCase());
+
+        // Flatten skills object into an array of skill names
+        const skillsTokens = Object.values(skills)
+            .flat()
+            .map((skill) => skill.toLowerCase());
+
+        // Stem words
+        const allText = [...experienceTokens, ...summaryTokens, ...skillsTokens].map((word) => stemmer.stem(word));
+
+        // Check for keyword matches
+        const matchedKeywords = JOB_KEYWORDS.filter((keyword) => allText.includes(stemmer.stem(keyword.toLowerCase()))).length;
+
+        // Calculate keyword ATS Score (60% weight)
+        const keywordScore = (matchedKeywords / JOB_KEYWORDS.length) * 100;
+        atsScore += keywordScore * 0.6;
+
+        // Experience Section Check (20% weight)
+        if (experience.length > 50) atsScore += 20;
+        else feedback.push("Experience section is too short. Add more details about your role and achievements.");
+
+        // Summary Section Check (20% weight)
+        if (summary.length > 50) atsScore += 20;
+        else feedback.push("Summary is too short. Expand on your skills and experience.");
+
+        return res.json({
+            success: true,
+            atsScore: atsScore.toFixed(2),
+            feedback,
+        });
+    } catch (error) {
+        return res.status(500).json(new ApiError(500, error.message));
+    }
+};
+
+export { generateResume, analyzeResume };
