@@ -10,6 +10,6 @@ app.use(bodyParser.json({ limit: "16kb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "16kb" }));
 app.use(compression());
 
-app.use("/api/v1/url", routes);
+app.use("/", routes);
 
 export default app;

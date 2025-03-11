@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { generateNewShortUrl } from "../controllers/url.controller.js";
+import { analytics, generateNewShortUrl, getRedirectWebsite } from "../controllers/url.controller.js";
 
 const router = Router();
 
 // Routes
 router.route("/").post(generateNewShortUrl);
-router.route("/:shortID").get(generateNewShortUrl);
+router.route("/:shortID").get(getRedirectWebsite);
+router.route("/analytics/:shortID").get(analytics);
 
 export default router;
